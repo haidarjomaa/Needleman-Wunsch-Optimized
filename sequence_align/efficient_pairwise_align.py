@@ -1,6 +1,7 @@
 import multiprocessing
 import os
 import time
+from read_seq import read_genome
 
 #for each row we have this function that the process will run
 def process_row(row, prev_row, match_reward: int, mismatch_penalty: int,
