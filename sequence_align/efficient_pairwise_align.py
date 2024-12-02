@@ -38,8 +38,11 @@ def global_alignment(match_reward: int, mismatch_penalty: int, indel_penalty: in
     n = len(t)
     prev_row = [0]*(m+1)
     prev_col = [0]*(n+1)
-    #create a pool of 2 processes for the multiprocessing
-    with multiprocessing.Pool(processes=2) as pool:
+    #these ensure that the when row finishes it waits for col and vice versa
+    row_done = multiprocessing.Event()
+    col_done = multiprocessing.Event()
+    #create a pool of max number of processes for the multiprocessing
+    with multiprocessing.Pool(processes=os.cpu_count()) as pool:
         #loop over the elements based on the the string values
         for i in range(max(1+m, 1+n)):
             #initialize the current rows
@@ -57,19 +60,33 @@ def global_alignment(match_reward: int, mismatch_penalty: int, indel_penalty: in
 
                 prev_row = pool.apply_async(process_row, args=(row, prev_row, match_reward, mismatch_penalty, indel_penalty,
                       s, t, i,))
-                prev_row = prev_row.get()
-
                 prev_col = pool.apply_async(process_col, args=(col, prev_col, match_reward, mismatch_penalty, indel_penalty,
                       s, t, i,))
+                #fetch the result and set flag to done for row
+                prev_row = prev_row.get()
+                row_done.set()
+                #fetch the result and set flag to done for col
                 prev_col = prev_col.get()
+                col_done.set()
+                #have the necessary process wait for the other
+                row_done.wait()
+                col_done.wait()
+                #clear the 2 events for the next iteration - false
+                row_done.clear()
+                col_done.clear()
             else:
               prev_row = pool.apply_async(process_row, args=(row, prev_row, match_reward, mismatch_penalty, indel_penalty,
                     s, t, i,))
-              prev_row = prev_row.get()
-
               prev_col = pool.apply_async(process_col, args=(col, prev_col, match_reward, mismatch_penalty, indel_penalty,
                     s, t, i,))
+              prev_row = prev_row.get()
+              row_done.set()
               prev_col = prev_col.get()
+              col_done.set()
+              row_done.wait()
+              col_done.wait()
+              row_done.clear()
+              col_done.clear()
         #wait until the 2 finish their tasks
         pool.close()
         pool.join()
@@ -79,4 +96,8 @@ def global_alignment(match_reward: int, mismatch_penalty: int, indel_penalty: in
     else:
       return prev_col[-1]
 
-print(global_alignment(1, -1, -1, seq1, seq2))
+if __name__ == '__main__':
+    start_time = time.time()
+    print(global_alignment(5, -3.6, -7, seq1, seq2))
+    end_time = time.time()
+    print(f"Execution time: {end_time - start_time} seconds")
