@@ -1,4 +1,6 @@
 import multiprocessing
+import os
+import time
 
 #for each row we have this function that the process will run
 def process_row(row, prev_row, match_reward: int, mismatch_penalty: int,
