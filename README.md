@@ -1,4 +1,4 @@
-# Needleman-Wunsch Optimized
+# Optimizing the Needleman-Wunsch
 ## Introduction
 ### Purpose:
 This repo was made in the efforts of making an accessible bioinformatics library where you can easily perform pairwise sequence alignment without having to worry about the hardware of your machine, since all of the libraries out there DON'T as a result consuming a lot of RAM and CPU power.
