@@ -82,10 +82,3 @@ def global_alignment(match_reward: int, mismatch_penalty: int, indel_penalty: in
       return prev_row[-1]
     else:
       return prev_col[-1]
-
-if __name__ == '__main__':
-    start_time = time.time()
-    seq1, seq2 = read_genome("C:\Haidar\AUB\Sem 1\CMPS 396AG - BioInf\Project\Code\[NC_004718.3].fasta", "C:\Haidar\AUB\Sem 1\CMPS 396AG - BioInf\Project\Code\[SPAdes_on_data_93_and_data_92__contigs_(fasta)].fasta")
-    print(global_alignment(5, -3.6, -7, seq1, seq2))
-    end_time = time.time()
-    print(f"Execution time: {end_time - start_time} seconds")
