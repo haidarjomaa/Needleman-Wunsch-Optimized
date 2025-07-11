@@ -93,7 +93,7 @@ void *process_col(void *args) {
     return NULL;
 }
 
-float global_alignment(float match_reward, float mismatch_penalty, float indel_penalty, const char *s, const char *t) {
+__declspec(dllexport) float global_alignment(float match_reward, float mismatch_penalty, float indel_penalty, const char *s, const char *t) {
     int m = strlen(s);
     int n = strlen(t);
     int i=0;
@@ -115,18 +115,17 @@ float global_alignment(float match_reward, float mismatch_penalty, float indel_p
                  col[0] = MAX(prev_row[0]+mismatch_penalty, prev_row[1]+indel_penalty, prev_col[1]+indel_penalty);
             }
         }
-
         RowArgs row_args = {row, prev_row, match_reward, mismatch_penalty, indel_penalty, s, t, i, m + 1 - i};
         ColArgs col_args = {col, prev_col, match_reward, mismatch_penalty, indel_penalty, s, t, i, n + 1 - i};
 
         pthread_create(&row_thread, NULL, process_row, &row_args);
         pthread_create(&col_thread, NULL, process_col, &col_args);
-
         pthread_join(row_thread, NULL);
         pthread_join(col_thread, NULL);
-
+        
         memcpy(prev_row, row, (m + 1 - i) * sizeof(float));
         memcpy(prev_col, col, (n + 1 - i) * sizeof(float));
+
         free(row);
         free(col);
     }
