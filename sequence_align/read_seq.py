@@ -11,4 +11,4 @@ def read_genome(file1, file2):
     result2 = ""
     for i in strings:
         result2 += i
-    return result1, result2
+    return result1.encode('utf-8'), result2.encode('utf-8')
